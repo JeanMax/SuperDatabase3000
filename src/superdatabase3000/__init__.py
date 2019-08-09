@@ -2,7 +2,7 @@
 We just import here what the end user might needs to import
 """
 
-# noqa: F401
+from superdatabase3000.superdatabase3000 import SuperDatabase3000  # noqa: F401
 
 
 # def main():
