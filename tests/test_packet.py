@@ -1,4 +1,4 @@
-import superdatabase3000.packet.packet as pckt
+import superdatabase3000.packet as pckt
 
 
 def test_pack_unpack():
