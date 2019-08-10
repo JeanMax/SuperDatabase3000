@@ -56,7 +56,7 @@ test:
 
 coverage:
 	coverage run --source=$(SRC_DIR) $(TESTER)
-	coverage report --omit '*__init__.py' --fail-under 90
+	coverage report --omit '*__init__.py' --fail-under 90 -m
 
 todo:
 	! grep -rin todo . | grep -vE '^(Binary file|\./\.git|\./Makefile|\./docs|\./setup.py|\.egg)'
