@@ -133,33 +133,41 @@ class SocketServer(SocketBase):
             inputs,
             0
         )
-
         for sock in rlist:
-            if sock is self.sock:  # new client
-                print("new client on", sock) # DEBUG
-                self.accept()
-            else:  # can read from a client
-                print("can read from", sock) # DEBUG
-                try:
-                    msg = recv_from(sock)
-                except ValueError:
-                    print("no msg / not a packet, removing", sock) # DEBUG
-                    self.remove_client(sock)
-                    msg = False
-                if msg:
-                    print("msg:", msg) # DEBUG
-                    self.clients[sock.fileno()].read_msg_queue.append(msg)
-
+            self.handle_read_stream(sock)
         for sock in wlist:
-            print("can write to", sock) # DEBUG
-            msg_queue = self.clients[sock.fileno()].to_send_msg_queue
-            if msg_queue:
-                msg = msg_queue.pop(0)
-                send_to(sock, msg)
-
+            self.handle_write_stream(sock)
         for sock in xlist:
-            if sock is self.sock:
-                print("PANIC! error on", sock) # DEBUG
-            else:
-                print("error on", sock) # DEBUG
-                self.remove_client(sock)
+            self.handle_error_stream(sock)
+
+    def handle_read_stream(self, sock):
+        """TODO"""
+        if sock is self.sock:
+            print("new client on", sock) # DEBUG
+            self.accept()
+            return
+        print("can read from", sock) # DEBUG
+        try:
+            msg = recv_from(sock)
+        except ValueError:
+            print("no msg / not a packet, removing", sock) # DEBUG
+            self.remove_client(sock)
+            return
+        print("msg:", msg) # DEBUG
+        self.clients[sock.fileno()].read_msg_queue.append(msg)
+
+    def handle_write_stream(self, sock):
+        """TODO"""
+        print("can write to", sock) # DEBUG
+        msg_queue = self.clients[sock.fileno()].to_send_msg_queue
+        if msg_queue:
+            msg = msg_queue.pop(0)
+            send_to(sock, msg)
+
+    def handle_error_stream(self, sock):
+        """TODO"""
+        if sock is self.sock:
+            print("PANIC! error on", sock) # DEBUG
+        else:
+            print("error on", sock) # DEBUG
+            self.remove_client(sock)
