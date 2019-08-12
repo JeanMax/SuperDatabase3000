@@ -17,7 +17,7 @@ TMP_FILES = build dist temp $(DOC_DIR) .coverage .pytest_cache \
 RM = rm -rfv
 
 SPHINX = sphinx-build -D "autodoc_mock_imports=torch"
-TESTER = setup.py --quiet test --addopts --fulltrace --addopts --quiet
+TESTER = setup.py --quiet test --addopts --fulltrace
 FLAKE = flake8
 LINTER = pylint --rcfile=setup.cfg $(shell if [ "$(TERM)" = dumb ]; then echo "-fparseable"; fi)
 PIP_INSTALL = pip install $(shell test "$EUID" = 0 || echo "--user")
@@ -55,7 +55,7 @@ test:
 	python3 $(TESTER)
 
 coverage:
-	coverage run --source=$(SRC_DIR) $(TESTER)
+	coverage run --source=$(SRC_DIR) $(TESTER) --addopts --quiet
 	coverage report --omit '*__init__.py' --fail-under 90 -m
 
 todo:
