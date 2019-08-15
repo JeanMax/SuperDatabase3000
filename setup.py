@@ -146,7 +146,9 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[  # Optional
-        'pandas',
+        'numpy',  # ==1.17.0',
+        'pandas',  # ==0.25.0',
+        'tables',  # ==3.5.2',
     ],
 
     # List additional groups of dependencies here (e.g. development

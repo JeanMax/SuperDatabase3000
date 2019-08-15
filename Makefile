@@ -11,7 +11,7 @@ TEST_DIR = tests
 DOC_DIR = docs
 DOC_BUILD_DIR = docs/_build
 
-TMP_FILES = build dist temp $(DOC_DIR) .coverage .pytest_cache \
+TMP_FILES = build dist temp $(DOC_DIR) .coverage .pytest_cache .eggs \
 			$(shell find . -name __pycache__) \
 			$(shell find . -name '*.egg-info') \
 RM = rm -rfv
@@ -52,7 +52,7 @@ flake:
 	$(FLAKE)
 
 test:
-	python3 $(TESTER)
+	python3 -Wall $(TESTER)
 
 coverage:
 	coverage run --source=$(SRC_DIR) $(TESTER) --addopts --quiet
