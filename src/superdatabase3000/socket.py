@@ -44,24 +44,18 @@ def recv_from(sock):
     return msg
 
 
-class SocketBase():
+class SocketClient():
     """TODO"""
-    def __init__(self, sock_filename):
+
+    def __init__(self, sock_filename=DEFAULT_SOCK_FILENAME):
         """TODO"""
         self.sock_filename = sock_filename
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.connect()
 
     def __del__(self):
         """TODO"""
         self.sock.close()
-
-
-class SocketClient(SocketBase):
-    """TODO"""
-    def __init__(self, sock_filename=DEFAULT_SOCK_FILENAME):
-        """TODO"""
-        super().__init__(sock_filename)
-        self.connect()
 
     def connect(self):
         """TODO"""
@@ -84,20 +78,27 @@ Client = collections.namedtuple(
 )
 
 
-class SocketServer(SocketBase):
+class SocketServer():
     """TODO"""
     # MAX_CLIENT = 64
 
     def __init__(self, sock_filename=DEFAULT_SOCK_FILENAME):
         """TODO"""
-        if os.path.exists(sock_filename):
-            os.unlink(sock_filename)
-        super().__init__(sock_filename)
+        self.sock_filename = sock_filename
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.listen()
         self.clients = {}  # dict(client_sock_fd: Client)
 
+    def __del__(self):
+        """TODO"""
+        for client in self.clients.values():
+            client.sock.close()
+        self.sock.close()
+
     def listen(self):
         """TODO"""
+        if os.path.exists(self.sock_filename):
+            os.unlink(self.sock_filename)
         self.sock.setblocking(0)
         self.sock.bind(self.sock_filename)
         self.sock.listen()
