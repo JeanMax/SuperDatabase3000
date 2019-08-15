@@ -25,6 +25,7 @@ class HdfStoreManager():
             self.store.create_table_index(table, optlevel=9, kind='full')
 
     def flush(self):
+        """TODO"""
         self.store.flush(True)
 
     def select(self, table, where=None, columns=None, start=None, stop=None):
