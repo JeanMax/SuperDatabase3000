@@ -12,6 +12,7 @@ class HdfStoreManager():
 
     def __init__(self, filename):
         """TODO"""
+        # TODO: flock filename
         self.store = pd.HDFStore(filename)  # , complevel=9, complib='blosc')
 
     def __del__(self):
@@ -28,46 +29,47 @@ class HdfStoreManager():
 
     def select(self, table, where=None, columns=None, start=None, stop=None):
         """TODO"""
+        if table not in self.store.keys():
+            print(f"Hdf: select: can't find table {table}")
+            return None
         if where is None and columns is None and start is None and stop is None:
             return self.store.get(table)
         if start is not None or stop is not None:
             nrows = self.store.get_storer(table).nrows
             if start is not None and start < 0:
-                start = nrows - start
+                start = nrows + start
             if stop is not None and stop < 0:
-                stop = nrows - stop
+                stop = nrows + stop
         return self.store.select(
             table, where=where, columns=columns, start=start, stop=stop
         )
-        # TODO:
-        # except KeyError:
-        #     print(f"Hdf: select: can't find table {table}")
-        #     return False
 
     def insert(self, table, df):
         """TODO"""
+        # update/'insert in the middle' are not currently supported,
+        # so here's the deal:
+        after_df = self.select(
+            table,
+            where=f"index >= {df.index[0]}"
+        )  # this might use a shitload of ram
+        if after_df is not None:
+            self.delete(
+                table,
+                where=f"index >= {df.index[0]}"
+            )
+            df = df.append(after_df)
+            df = df.loc[~df.index.duplicated(keep='last')]
+
         if not df.index.is_monotonic_increasing:
             print(
                 "Hdf: insert: warning, tried to add a DataFrame with "
                 f"unsorted indexes to {table}; I'll sort it for you..."
             )
             df.sort_index(inplace=True)
-        # TODO: add update=False
-        # if update:  # or 'insert in the middle'
-        #     # this is not currently supported, so here's the deal:
-        #     after_df = self.select(
-        #         table,
-        #         where="index >= df.index[0]"
-        #     )  # this might use a shitload of ram
-        #     if not after_df.empty:
-        #         self.delete(
-        #             table,
-        #             where="index >= df.index[0]"
-        #         )
-        #         df = df.merge(after_df)  # ???
+
         try:
-            self.store.append(table, df, data_columns=True)
-        except RuntimeError:  # HDF5ExtError
+            self.store.append(table, df)  # , data_columns=True)
+        except (RuntimeError, ValueError):  # HDF5ExtError
             print(f"Hdf: insert: something went wrong with {table}")
             return False
         return True
@@ -75,7 +77,7 @@ class HdfStoreManager():
     def delete(self, table, where):
         """TODO"""
         try:
-            self.store.delete(table, where)
+            self.store.remove(table, where)
         except KeyError:
             print(f"Hdf: delete: can't find table {table}")
             return False
