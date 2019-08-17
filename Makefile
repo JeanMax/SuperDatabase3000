@@ -23,7 +23,7 @@ TESTER += $(shell test "$(TERM)" != dumb && echo "--pdb")
 endif
 FLAKE = flake8
 LINTER = pylint --rcfile=setup.cfg $(shell test "$(TERM)" = dumb && echo "-fparseable")
-PIP_INSTALL = pip install $(shell test "$EUID" != 0 && test "$(READTHEDOCS)$(TRAVIS)$(PYENV_VERSION)" = "" || echo "--user")
+PIP_INSTALL = pip install $(shell test "$EUID" = 0 || echo "--user")
 PIP_UNINSTALL = pip uninstall -y
 
 

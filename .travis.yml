@@ -1,13 +1,15 @@
 language: python
 sudo: required
-dist: trusty
-os: linux
 
 matrix:
   include:
     - name: "Linux / Python 3.6"
+      os: linux
+      dist: trusty
       python: 3.6
     - name: "Linux / Python 3.7"
+      os: linux
+      dist: xenial
       python: 3.7
     - name: "OSX / Python 3.6"
       os: osx
