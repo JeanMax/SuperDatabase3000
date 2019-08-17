@@ -18,9 +18,6 @@ RM = rm -rfv
 
 SPHINX = sphinx-build -D "autodoc_mock_imports=torch"
 TESTER = setup.py --quiet test --addopts --fulltrace
-ifndef TRAVIS
-TESTER += $(shell test "$(TERM)" != dumb && echo "--pdb")
-endif
 FLAKE = flake8
 LINTER = pylint --rcfile=setup.cfg $(shell test "$(TERM)" = dumb && echo "-fparseable")
 PIP_INSTALL = pip install $(shell test "$EUID" = 0 || test "$(READTHEDOCS)$(TRAVIS)$(PYENV_VERSION)" != "" || echo "--user")
@@ -59,8 +56,10 @@ test:
 
 coverage:
 	coverage run --source=$(SRC_DIR) $(TESTER) --addopts --quiet
-	coverage report --omit '*__init__.py' --fail-under 90 -m
+ifdef TRAVIS
 	coverals
+endif
+	coverage report --omit '*__init__.py' --fail-under 90 -m
 
 todo:
 	! grep -rin todo . | grep -vE '^(Binary file|\./\.git|\./Makefile|\./docs|\./setup.py|\.egg)'

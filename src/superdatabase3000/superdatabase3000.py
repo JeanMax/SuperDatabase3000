@@ -11,8 +11,9 @@ from superdatabase3000.hdf import HdfStoreManager
 Args = collections.namedtuple(
     "Args",
     ["table", "where", "columns", "start", "stop", "df"],
-    defaults=[None, None, None, None, None, None]
+    # defaults=[None, None, None, None, None, None]  # >=3.7
 )
+Args.__new__.__defaults__ = (None,) * len(Args._fields)
 
 
 class DbClient():
