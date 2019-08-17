@@ -5,18 +5,18 @@ os: linux
 
 matrix:
   include:
-    - name "Linux / Python 3.6"
-    python: 3.6
-    - name "Linux / Python 3.7"
-    python: 3.7
-    - name "OSX / Python 3.6"
-    os: osx
-    language: generic
-    env: PYTHON=3.6.3
-    - name "OSX / Python 3.7"
-    os: osx
-    language: generic
-    env: PYTHON=3.7.4
+    - name: "Linux / Python 3.6"
+      python: 3.6
+    - name: "Linux / Python 3.7"
+      python: 3.7
+    - name: "OSX / Python 3.6"
+      os: osx
+      language: generic
+      env: PYTHON=3.6.3
+    - name: "OSX / Python 3.7"
+      os: osx
+      language: generic
+      env: PYTHON=3.7.4
 
 addons:
   apt:
