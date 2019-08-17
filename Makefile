@@ -18,19 +18,22 @@ RM = rm -rfv
 
 SPHINX = sphinx-build -D "autodoc_mock_imports=torch"
 TESTER = setup.py --quiet test --addopts --fulltrace
+ifndef TRAVIS
+TESTER += $(shell if [ "$(TERM)" != dumb ]; then echo "--pdb"; fi)
+endif
 FLAKE = flake8
 LINTER = pylint --rcfile=setup.cfg $(shell if [ "$(TERM)" = dumb ]; then echo "-fparseable"; fi)
-PIP_INSTALL = pip install $(shell test "$EUID" = 0 || echo "--user")
+PIP_INSTALL = pip install $(shell test "$EUID" = 0 && test "$(READTHEDOCS)$(TRAVIS)$(PYENV_VERSION)" = "" || echo "--user")
 PIP_UNINSTALL = pip uninstall -y
 
 
 # INSTALL
-$(NAME): install_dev
+$(NAME): develop
 
 install:
 	$(PIP_INSTALL) .
 
-install_dev:
+develop:
 	$(PIP_INSTALL) .[dev]
 	$(PIP_INSTALL) --editable .
 
