@@ -57,7 +57,7 @@ test:
 coverage:
 	coverage run --source=$(SRC_DIR) $(TESTER) --addopts --quiet
 ifdef TRAVIS
-	coverals
+	coveralls
 endif
 	coverage report --omit '*__init__.py' --fail-under 90 -m
 
