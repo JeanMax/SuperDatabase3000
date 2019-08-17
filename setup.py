@@ -84,7 +84,7 @@ setup(
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='max.canal@unchartech.com',  # Optional
+    author_email='max@rmrf.fr',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -168,6 +168,7 @@ setup(
             'flake8',
             'flake8-bugbear',
             'coverage',
+            'coveralls',
             'sphinx',
         ],
     },
