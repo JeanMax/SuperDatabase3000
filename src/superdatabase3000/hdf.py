@@ -1,6 +1,9 @@
 """TODO"""
 
+import os
 import pandas as pd
+
+DEFAULT_HDF_FILENAME = f"{os.environ['HOME']}/.superdatabase3000.hdf"
 
 
 class HdfStoreManager():
@@ -10,10 +13,12 @@ class HdfStoreManager():
     Not thread-safe. Not even a little. Don't try. Ok? No. Don't.
     """
 
-    def __init__(self, filename):
+    def __init__(self, hdf_filename=None):
         """TODO"""
         # TODO: flock filename
-        self.store = pd.HDFStore(filename)  # , complevel=9, complib='blosc')
+        if hdf_filename is None:
+            hdf_filename = DEFAULT_HDF_FILENAME
+        self.store = pd.HDFStore(hdf_filename)
 
     def __del__(self):
         """Close the hdf store."""
@@ -54,6 +59,12 @@ class HdfStoreManager():
             where=f"index >= {df.index[0]}"
         )  # this might use a shitload of ram
         if after_df is not None:
+            if list(df.columns) != list(after_df.columns):
+                print(
+                    "Hdf: insert: tried to insert a DataFrame "
+                    f"with differents columns than the DataFrame in {table}"
+                )
+                return False
             self.delete(
                 table,
                 where=f"index >= {df.index[0]}"

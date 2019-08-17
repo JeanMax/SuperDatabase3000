@@ -1,7 +1,10 @@
+import sys
+import time
 import os
 import numpy as np
 import pandas as pd
 import pytest
+from tables.exceptions import HDF5ExtError
 
 import superdatabase3000.hdf as hdf
 
@@ -13,7 +16,16 @@ def test_hdf():
     test_table = "/toto"
     if os.path.exists(test_hdf_file):
         os.unlink(test_hdf_file)
-    hsm = hdf.HdfStoreManager(test_hdf_file)
+    hsm = None
+    for _ in range(32):
+        try:
+            hsm = hdf.HdfStoreManager(test_hdf_file)
+            break
+        except HDF5ExtError:
+            time.sleep(0.1)
+    if hsm is None:
+        assert hsm
+        sys.exit(42)
 
     df1 = pd.DataFrame(np.random.random((10000, 12)))
     hsm.insert(test_table, df1)
@@ -35,4 +47,15 @@ def test_hdf():
     hsm.maintain()
     hsm.drop(test_table)
     del hsm
-    os.unlink(test_hdf_file)
+
+    # yay = False
+    # for _ in range(32):
+    #     try:
+    #         os.unlink(test_hdf_file)
+    #         yay = True
+    #         break
+    #     except FileNotFoundError:
+    #         time.sleep(0.1)
+    # if not yay:
+    #     assert yay
+    #     sys.exit(42)

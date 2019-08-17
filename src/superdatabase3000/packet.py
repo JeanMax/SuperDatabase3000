@@ -44,14 +44,17 @@ Packet = collections.namedtuple(
 )
 
 
-def checksum(bytes_buf):
-    """TODO"""
+def _checksum(bytes_buf):
+    """Return the sha1 digest of the given 'bytes_buf'."""
     return hashlib.sha1(bytes_buf[CHECKSUM_OFFSET:]).digest()
 
 
-def verify_checksum(ctrl_checksum, bytes_buf):
-    """TODO"""
-    if ctrl_checksum != checksum(bytes_buf):
+def _verify_checksum(ctrl_checksum, bytes_buf):
+    """
+    Return True if the given 'ctrl_checksum' matches the checksum
+    of 'bytes_buf', otherwise throw a ValueError.
+    """
+    if ctrl_checksum != _checksum(bytes_buf):
         raise ValueError("packet: invalid checksum")
     return True
 
@@ -75,7 +78,7 @@ def pack(payload, with_checksum=True):
         raise ValueError(f"packet: {e}")
 
     if with_checksum:
-        packet = packet._replace(checksum=checksum(bytes_buf))
+        packet = packet._replace(checksum=_checksum(bytes_buf))
         bytes_buf = struct.pack(
             STRUCT_FORMAT.format(payload_size=payload_size),
             *packet
@@ -102,7 +105,7 @@ def unpack(bytes_buf, with_checksum=True):
     # payload can fit in a 64 bytes packet: just verify checksum, then job done
     if packet.payload_size <= PAYLOAD_MIN_SIZE:
         if with_checksum:
-            verify_checksum(packet.checksum, bytes_buf)
+            _verify_checksum(packet.checksum, bytes_buf)
         packet = packet._replace(
             payload=packet.payload[:packet.payload_size]
         )
@@ -120,5 +123,5 @@ def unpack(bytes_buf, with_checksum=True):
         raise ValueError(f"packet: {e}")
     packet = Packet(*packet)
     if with_checksum:
-        verify_checksum(packet.checksum, bytes_buf)
+        _verify_checksum(packet.checksum, bytes_buf)
     return packet  # complete packet with extra payload

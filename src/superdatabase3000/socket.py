@@ -13,7 +13,7 @@ DEFAULT_SOCK_FILENAME = "/tmp/superdatabase3000.sock"
 BUF_SIZE = 0x1000
 
 
-def send_to(sock, msg):
+def _send_to(sock, msg):
     """TODO"""
     payload = pickle.dumps(msg)
     bytes_buf = pckt.pack(payload)
@@ -27,7 +27,7 @@ def send_to(sock, msg):
         bytes_buf = bytes_buf[buf_size:]
 
 
-def recv_from(sock):
+def _recv_from(sock):
     """TODO"""
     bytes_buf = sock.recv(pckt.PACKET_MIN_SIZE)
     packet = pckt.unpack(bytes_buf)
@@ -44,20 +44,38 @@ def recv_from(sock):
     return msg
 
 
-class SocketClient():
+def _msg_head_str(msg):
     """TODO"""
+    msg_limit = 32
+    msg_str = f"'{msg}'"
+    if len(msg_str) > msg_limit:
+        msg_str = msg_str[:msg_limit] + "'..."
+    return msg_str
 
-    def __init__(self, sock_filename=DEFAULT_SOCK_FILENAME):
+
+class _SocketBase():
+    """TODO"""
+    def __init__(self, sock_filename):
         """TODO"""
+        if sock_filename is None:
+            sock_filename = DEFAULT_SOCK_FILENAME
         self.sock_filename = sock_filename
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.connect()
 
     def __del__(self):
         """TODO"""
         self.sock.close()
 
-    def connect(self):
+
+class SocketClient(_SocketBase):
+    """TODO"""
+
+    def __init__(self, sock_filename=None):
+        """TODO"""
+        super().__init__(sock_filename)
+        self._connect()
+
+    def _connect(self):
         """TODO"""
         if not os.path.exists(self.sock_filename):
             raise socket.error(f"Can't find socket at '{self.sock_filename}'")
@@ -65,110 +83,109 @@ class SocketClient():
 
     def send(self, msg):
         """TODO"""
-        send_to(self.sock, msg)
+        _send_to(self.sock, msg)
 
     def recv(self):
         """TODO"""
-        return recv_from(self.sock)
+        return _recv_from(self.sock)
 
 
 Client = collections.namedtuple(
     "Client",
-    ["sock", "read_msg_queue", "to_send_msg_queue"]
+    ["sock", "to_send_msg_queue"]
 )
 
 
-class SocketServer():
+class SocketServer(_SocketBase):
     """TODO"""
     # MAX_CLIENT = 64
 
-    def __init__(self, sock_filename=DEFAULT_SOCK_FILENAME):
+    def __init__(self, sock_filename=None):
         """TODO"""
-        self.sock_filename = sock_filename
-        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.listen()
+        super().__init__(sock_filename)
+        self._listen()
         self.clients = {}  # dict(client_sock_fd: Client)
 
     def __del__(self):
         """TODO"""
         for client in self.clients.values():
             client.sock.close()
-        self.sock.close()
+        super().__del__()
 
-    def listen(self):
+    def _listen(self):
         """TODO"""
         if os.path.exists(self.sock_filename):
             os.unlink(self.sock_filename)
-        self.sock.setblocking(0)
+        # self.sock.setblocking(0)
         self.sock.bind(self.sock_filename)
         self.sock.listen()
 
-    def accept(self):
+    def _accept(self):
         """TODO"""
         client_sock, _ = self.sock.accept()
-        print("ACCEPT:", client_sock) # DEBUG
+        print("socket: accept:", client_sock)
         # client_sock.setblocking(0)
         self.clients[client_sock.fileno()] = Client(
             sock=client_sock,
-            read_msg_queue=[],
             to_send_msg_queue=[]
         )
 
-    def remove_client(self, client_sock):
+    def _remove_client(self, client_sock):
         """TODO"""
-        print("REMOVE:", client_sock) # DEBUG
+        print("socket: remove:", client_sock)
         fd = client_sock.fileno()
         client_sock.close()
         del self.clients[fd]
 
-    def send_to(self, client_sock, msg):
+    def _handle_error_stream(self, sock):
         """TODO"""
-        self.clients[client_sock.fileno()].to_send_msg_queue.append(msg)
+        if sock is self.sock:
+            print("socket: PANIC! error on server sock:", sock)
+        else:
+            print("socket: error on sock:", sock)
+            self._remove_client(sock)
 
-    def select(self):
+    def _handle_write_stream(self, sock):
+        """TODO"""
+        msg_queue = self.clients[sock.fileno()].to_send_msg_queue
+        if msg_queue:
+            msg = msg_queue.pop(0)
+            print(
+                f"socket: sending message {_msg_head_str(msg)} to sock: {sock}"
+            )
+            _send_to(sock, msg)
+
+    def _handle_read_stream(self, sock, on_msg):
+        """TODO"""
+        if sock is self.sock:
+            self._accept()
+            return
+        try:
+            msg = _recv_from(sock)
+        except ValueError:
+            print("socket: received an empty/invalid packet, removing client")
+            self._remove_client(sock)
+            # TODO: do we really want to remove client sending invalid packets?
+            return
+        print(f"socket: received message: {_msg_head_str(msg)}")
+        on_msg(sock.fileno(), msg)
+
+    def poll_events(self, on_msg):
         """TODO"""
         inputs = [c.sock for c in self.clients.values()] + [self.sock]
         rlist, wlist, xlist = select.select(
             inputs,
             [c.sock for c in self.clients.values() if c.to_send_msg_queue],
             inputs,
-            0
+            0.5
         )
         for sock in rlist:
-            self.handle_read_stream(sock)
+            self._handle_read_stream(sock, on_msg)
         for sock in wlist:
-            self.handle_write_stream(sock)
+            self._handle_write_stream(sock)
         for sock in xlist:
-            self.handle_error_stream(sock)
+            self._handle_error_stream(sock)
 
-    def handle_read_stream(self, sock):
+    def send_to(self, client_sock_fd, msg):
         """TODO"""
-        if sock is self.sock:
-            print("new client on", sock) # DEBUG
-            self.accept()
-            return
-        print("can read from", sock) # DEBUG
-        try:
-            msg = recv_from(sock)
-        except ValueError:
-            print("no msg / not a packet, removing", sock) # DEBUG
-            self.remove_client(sock)
-            return
-        print("msg:", msg) # DEBUG
-        self.clients[sock.fileno()].read_msg_queue.append(msg)
-
-    def handle_write_stream(self, sock):
-        """TODO"""
-        print("can write to", sock) # DEBUG
-        msg_queue = self.clients[sock.fileno()].to_send_msg_queue
-        if msg_queue:
-            msg = msg_queue.pop(0)
-            send_to(sock, msg)
-
-    def handle_error_stream(self, sock):
-        """TODO"""
-        if sock is self.sock:
-            print("PANIC! error on", sock) # DEBUG
-        else:
-            print("error on", sock) # DEBUG
-            self.remove_client(sock)
+        self.clients[client_sock_fd].to_send_msg_queue.append(msg)
