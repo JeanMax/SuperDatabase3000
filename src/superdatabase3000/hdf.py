@@ -59,6 +59,12 @@ class HdfStoreManager():
             where=f"index >= {df.index[0]}"
         )  # this might use a shitload of ram
         if after_df is not None:
+            if list(df.columns) != list(after_df.columns):
+                print(
+                    "Hdf: insert: tried to insert a DataFrame "
+                    f"with differents columns than the DataFrame in {table}"
+                )
+                return False
             self.delete(
                 table,
                 where=f"index >= {df.index[0]}"

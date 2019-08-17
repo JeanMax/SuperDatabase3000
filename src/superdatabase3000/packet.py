@@ -45,12 +45,15 @@ Packet = collections.namedtuple(
 
 
 def _checksum(bytes_buf):
-    """TODO"""
+    """Return the sha1 digest of the given 'bytes_buf'."""
     return hashlib.sha1(bytes_buf[CHECKSUM_OFFSET:]).digest()
 
 
 def _verify_checksum(ctrl_checksum, bytes_buf):
-    """TODO"""
+    """
+    Return True if the given 'ctrl_checksum' matches the checksum
+    of 'bytes_buf', otherwise throw a ValueError.
+    """
     if ctrl_checksum != _checksum(bytes_buf):
         raise ValueError("packet: invalid checksum")
     return True

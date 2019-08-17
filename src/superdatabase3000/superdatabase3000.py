@@ -42,6 +42,8 @@ blabla
     def _query(self, method, args):
         """TODO"""
         args_dic = args._asdict()
+        if args_dic["table"][0] != "/":
+            args_dic["table"] = "/" + args_dic["table"]
         self.socket.send({
             "method": method,
             "args": {
@@ -89,15 +91,15 @@ blabla
         """
         self.socket = SocketServer(sock_filename)
         self.hdf = HdfStoreManager(hdf_filename)
+        self.sig = ExitSignalWatcher()
+        self.sig.catch()
 
     def read_loop(self):
         """TODO"""
-        sig = ExitSignalWatcher()
-        sig.catch()
-        while not sig.EXIT:
+        while not self.sig.EXIT:
             self.socket.poll_events(self._on_msg)
-        sys.exit(sig.EXIT)
-        # sig.restore()
+        self.__del__()
+        sys.exit(self.sig.EXIT)
 
     def _on_msg(self, client_sock_fd, msg):
         """TODO"""
@@ -113,3 +115,4 @@ blabla
         self.hdf.maintain()
         del self.hdf
         del self.socket
+        self.sig.restore()
