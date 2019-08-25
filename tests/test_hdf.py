@@ -8,14 +8,15 @@ from tables.exceptions import HDF5ExtError
 
 import superdatabase3000.hdf as hdf
 
+test_hdf_file = "/tmp/db.h5"
+test_table = "/toto"
 
-@pytest.mark.filterwarnings("ignore:numpy.ufunc size changed")
-def test_hdf():
 
-    test_hdf_file = "/tmp/db.h5"
-    test_table = "/toto"
-    if os.path.exists(test_hdf_file):
+def get_hsm():
+    try:
         os.unlink(test_hdf_file)
+    except FileNotFoundError:
+        pass
     hsm = None
     for _ in range(32):
         try:
@@ -26,6 +27,11 @@ def test_hdf():
     if hsm is None:
         assert hsm
         sys.exit(42)
+    return hsm
+
+@pytest.mark.filterwarnings("ignore:numpy.ufunc size changed")
+def test_hdf():
+    hsm = get_hsm()
 
     df1 = pd.DataFrame(np.random.random((10000, 12)))
     hsm.insert(test_table, df1)
@@ -47,6 +53,12 @@ def test_hdf():
     hsm.maintain()
     hsm.drop(test_table)
     del hsm
+
+    hsm = get_hsm()
+    assert hsm.drop("/zafazf") == False
+    assert hsm.delete("/zafazf", where="index == 42") == False
+    assert hsm.select("/zafazf") == None
+
 
     # yay = False
     # for _ in range(32):
