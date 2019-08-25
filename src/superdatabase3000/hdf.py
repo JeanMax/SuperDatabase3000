@@ -55,11 +55,14 @@ class HdfStoreManager():
             nrows = self.store.get_storer(table).nrows
             if start is not None and start < 0:
                 start = nrows + start
+                if start >= nrows:
+                    print(f"Hdf: select: out of bound start argument")
+                    return None
             if stop is not None and stop < 0:
                 stop = nrows + stop
-            if start >= nrows or stop >= nrows:
-                print(f"Hdf: select: out of bound start/stop argument")
-                return None
+                if stop >= nrows:
+                    print(f"Hdf: select: out of bound stop argument")
+                    return None
         return self.store.select(
             table, where=where, columns=columns, start=start, stop=stop
         )

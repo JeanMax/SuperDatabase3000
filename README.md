@@ -9,6 +9,7 @@
 from superdatabase3000 import DbServer
 
 server = DbServer()
+server.read_loop()
 ```
 
 * connect client:
