@@ -2,7 +2,7 @@
 # Customize this!
 NAME = superdatabase3000
 AUTHOR = JeanMax
-VERSION = 0.1
+VERSION = 0.1.1
 
 
 # Some globads
