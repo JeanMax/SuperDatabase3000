@@ -58,7 +58,7 @@ script:
   - make lint
   - make test
   - make coverage
-  - make todo
+  - make todo || true
 
 after_script:
   - make uninstall
