@@ -19,18 +19,18 @@ RM = rm -rfv
 SPHINX = sphinx-build -D "autodoc_mock_imports=torch"
 TESTER = setup.py --quiet test --addopts --fulltrace
 FLAKE = flake8
-LINTER = pylint --rcfile=setup.cfg $(shell if [ "$(TERM)" = dumb ]; then echo "-fparseable"; fi)
-PIP_INSTALL = pip install $(shell test "$EUID" = 0 || echo "--user")
+LINTER = pylint --rcfile=setup.cfg $(shell test "$(TERM)" = dumb && echo "-fparseable")
+PIP_INSTALL = pip install $(shell test "$EUID" = 0 || test "$(READTHEDOCS)$(TRAVIS)$(PYENV_VERSION)" != "" || echo "--user")
 PIP_UNINSTALL = pip uninstall -y
 
 
 # INSTALL
-$(NAME): install_dev
+$(NAME): develop
 
 install:
 	$(PIP_INSTALL) .
 
-install_dev:
+develop:
 	$(PIP_INSTALL) .[dev]
 	$(PIP_INSTALL) --editable .
 
@@ -56,10 +56,13 @@ test:
 
 coverage:
 	coverage run --source=$(SRC_DIR) $(TESTER) --addopts --quiet
+ifdef TRAVIS
+	coveralls
+endif
 	coverage report --omit '*__init__.py' --fail-under 90 -m
 
 todo:
-	! grep -rin todo . | grep -vE '^(Binary file|\./\.git|\./Makefile|\./docs|\./setup.py|\.egg)'
+	! grep -rin todo . | grep -vE '^(Binary file|\./\.git|\./Makefile|\./docs|\./setup.py|.*\.egg|\./\.travis\.yml|flycheck_)'
 
 check: lint flake coverage todo
 

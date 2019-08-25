@@ -84,7 +84,7 @@ setup(
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='max.canal@unchartech.com',  # Optional
+    author_email='max@rmrf.fr',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -108,6 +108,7 @@ setup(
         # These classifiers are *not* checked by 'pip install'. See instead
         # 'python_requires' below.
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
 
@@ -137,7 +138,7 @@ setup(
     # and refuse to install the project if the version does not match. If you
     # do not support Python 2, you can simplify this to '>=3.5' or similar, see
     # https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
-    python_requires='>=3.7, <4',
+    python_requires='>=3.6, <4',
 
     # This field lists other packages that your project depends on to run.
     # Any package you put here will be installed by pip when your project is
@@ -167,6 +168,7 @@ setup(
             'flake8',
             'flake8-bugbear',
             'coverage',
+            'coveralls',
             'sphinx',
         ],
     },
