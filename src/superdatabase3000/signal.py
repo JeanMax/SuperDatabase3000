@@ -1,14 +1,14 @@
-"""TODO"""
+"""A simple module to handle catching signals"""
 
 import signal
 
 
 class ExitSignalWatcher():
-    """TODO"""
+    """This class allows to store any caught SIGINT/SIGTERM"""
+
     EXIT = 0
 
     def __init__(self):
-        """TODO"""
         self.sig_handler = None
 
     @staticmethod

@@ -1,7 +1,20 @@
 # Super Database 3000
 
 ## Install:
-* TODO
+* pip install superdatabase3000
 
 ## Usage:
-* TODO
+* first, launch a server:
+```shell
+from superdatabase3000 import DbServer
+
+server = DbServer()
+```
+
+* connect client:
+```shell
+from superdatabase3000 import DbClient
+
+client = DbClient()
+df = client.select("/toto")
+```

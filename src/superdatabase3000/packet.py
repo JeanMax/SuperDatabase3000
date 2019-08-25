@@ -1,4 +1,12 @@
 """
+This module defines a packet structure
+(composed of: canari, payload, payload_size, and eventually an extra payload).
+You'll find a 'pack' functions allowing you to create a packet
+from a payload (btyes object) you want to send, and an 'unpack' function
+that can extract a payload from a packet (as a bytes object too) after
+validating the packet structure (canari, checksum, length).
+
+
 packet[64]:    abcd            abcdefghabcdefghabcd        abcdefgh
                  ^               ^                           ^
                canari[4]       checksum[20]                payload_size[8]
@@ -22,7 +30,7 @@ CANARI = 0xdeadbeef
 CANARI_SIZE = 4  # unsigned int
 CHECKSUM_SIZE = 20  # sha1
 INT_SIZE = 8  # unsigned long long
-PAYLOAD_MIN_SIZE = 32
+PAYLOAD_MIN_SIZE = 32  # TODO: tweak me based on DbClient requests size: 256-32
 PACKET_MIN_SIZE = (
     CANARI_SIZE + CHECKSUM_SIZE + INT_SIZE
     + PAYLOAD_MIN_SIZE
@@ -60,7 +68,14 @@ def _verify_checksum(ctrl_checksum, bytes_buf):
 
 
 def pack(payload, with_checksum=True):
-    """TODO"""
+    """
+    Create a packet from the given 'payload' byte object that you want to send.
+
+    If the 'with_checksum' argument is True, the checksum of the payload will
+    be calculated and inserted in the packet, otherwise the checksum will be
+    set to zeros.
+    Returns a bytes object of the created packet (ready to send).
+    """
 
     packet = Packet(
         canari=CANARI,
@@ -88,7 +103,16 @@ def pack(payload, with_checksum=True):
 
 
 def unpack(bytes_buf, with_checksum=True):
-    """TODO"""
+    """
+    Extract the payload (as a bytes object) from the given 'bytes_buf' packet.
+
+    If the 'with_checksum' argument is True, the checksum in the packet will be
+    checked against a calculated checksum of the packet payload. Otherwise it
+    will just be ignored.
+    Returns a bytes object of the extracted payload.
+    A ValueError will be thrown if an invalid packet is given as 'bytes_buf'
+    (invalid canari, checksum, payload length)
+    """
 
     # first, we try to unpack as if it was a 64 bytes packet
     try:
