@@ -94,7 +94,7 @@ class HdfStoreManager():
                 where=f"index >= {df.index[0]}"
             )
             df = df.append(after_df)
-            df = df.loc[~df.index.duplicated(keep='last')]
+            df = df.loc[~df.index.duplicated(keep='first')]
 
         if not df.index.is_monotonic_increasing:
             print(

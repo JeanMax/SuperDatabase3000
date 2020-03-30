@@ -25,17 +25,22 @@ def client_side():
     assert not len((df == DF).replace(True, np.nan).dropna())
 
     client1.insert("/toto", DF)  # 8
-    client1.delete("/toto", where="index > 42")  # 10
-    client2.drop("/toto")  # 12
-    del client1  # 13
-    del client2  # 14
+    DF.iloc[0] = (DF.iloc[0] + 1) * 2
+    client1.insert("/toto", DF)  # 10
+    df = client2.select("/toto")  # 12
+    assert not len((df == DF).replace(True, np.nan).dropna())
+
+    client1.delete("/toto", where="index > 42")  # 14
+    client2.drop("/toto")  # 16
+    del client1  # 17
+    del client2  # 18
 
 
 def server_side():
     if os.path.exists(HDF):
         os.unlink(HDF)
     server = db.DbServer(sock_filename=SOCK, hdf_filename=HDF)
-    for _ in range(14):
+    for _ in range(18):
         server.socket.poll_events(server._on_msg)
     del server
 
