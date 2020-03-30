@@ -220,9 +220,11 @@ class SocketServer(_SocketBase):
             timeout
         )
         for sock in rlist:
-            self._handle_read_stream(sock, on_msg)
+            if sock.fileno() >= 0:
+                self._handle_read_stream(sock, on_msg)
         for sock in wlist:
-            self._handle_write_stream(sock)
+            if sock.fileno() >= 0:
+                self._handle_write_stream(sock)
         for sock in xlist:
             self._handle_error_stream(sock)
 
