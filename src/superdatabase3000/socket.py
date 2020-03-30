@@ -10,7 +10,8 @@ import superdatabase3000.packet as pckt
 
 
 DEFAULT_SOCK_FILENAME = "/tmp/superdatabase3000.sock"
-BUF_SIZE = 0x1000  # TODO: tweak me
+BUF_SIZE = int(os.environ.get("BUF_SIZE_3000", 0x8000))
+# if you experience broken pipe errors, you might want to change this
 
 
 def _send_to(sock, msg):

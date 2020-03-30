@@ -30,7 +30,7 @@ CANARI = 0xdeadbeef
 CANARI_SIZE = 4  # unsigned int
 CHECKSUM_SIZE = 20  # sha1
 INT_SIZE = 8  # unsigned long long
-PAYLOAD_MIN_SIZE = 32  # TODO: tweak me based on DbClient requests size: 256-32
+PAYLOAD_MIN_SIZE = 32  # arbitrary size: no improvement with bigger values
 PACKET_MIN_SIZE = (
     CANARI_SIZE + CHECKSUM_SIZE + INT_SIZE
     + PAYLOAD_MIN_SIZE
