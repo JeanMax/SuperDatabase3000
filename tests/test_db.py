@@ -1,5 +1,5 @@
 import time
-# import signal
+import signal
 import os
 import numpy as np
 import pandas as pd
@@ -55,5 +55,5 @@ def test_db():
         return
     else:
         client_side()
-        # time.sleep(0.3)
-        # os.kill(child_pid, signal.SIGINT)
+        time.sleep(0.3)
+        os.kill(child_pid, signal.SIGINT)
