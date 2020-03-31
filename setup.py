@@ -13,6 +13,7 @@ from os import path
 # and accepts an argument to specify the text encoding
 # Python 3 only projects can skip this import
 from io import open
+import os
 
 here = path.abspath(path.dirname(__file__))
 
@@ -222,3 +223,9 @@ setup(
         'Source': 'https://github.com/JeanMax/SuperDatabase3000/',
     },
 )
+
+# let's generate docs...
+if os.environ.get("READTHEDOCS") and not os.path.isdir(".doc"):
+    os.mkdir(".doc")
+    os.system("make")
+    os.system("make html")
