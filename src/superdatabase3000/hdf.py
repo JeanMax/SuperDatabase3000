@@ -38,13 +38,23 @@ class HdfStoreManager():
         """
         Select rows (as a DataFrame) from the given 'table'.
 
-        start (int): row number to start selection (negative index allowed)
-        stop  (int): row number to stop selection (negative index allowed)
-        columns : a list of columns that will limit the return columns
+        Parameters
+        ----------
+        table : str
+            the name of the table to query
+        where : str
+            for the 'where' syntax, see:
+            https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#querying-a-table
+        columns : list
+            a list of columns that will limit the returned columns
+        start : int
+            row number to start selection (negative index allowed)
+        stop : int
+            row number to stop selection (negative index allowed)
 
-        Return None if something funky happens.
-        For the 'where' syntax, see:
-        https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#querying-a-table
+        Return
+        ------
+        The selected DataFrame, otherwise None if something funky happens.
         """
         if table not in self.store.keys():
             print(f"Hdf: select: can't find table {table}")
@@ -76,7 +86,17 @@ class HdfStoreManager():
         The table must always be sorted, so you should prefer inserting
         to the end (with growing indexes) if you need better performances.
 
-        Return False if the table doesn't exist or something funky happens.
+        Parameters
+        ----------
+        table : str
+            the name of the table to query
+        df : DataFrame
+            the DataFrame to insert in the database
+
+        Return
+        ------
+        bool
+            False if the table doesn't exist.
         """
         # update/'insert in the middle' are not currently supported,
         # so here's the deal:
@@ -117,9 +137,18 @@ class HdfStoreManager():
         """
         Drop the rows matching the 'where' close on the given 'table'.
 
-        Return False if the table doesn't exist.
-        For the 'where' syntax, see:
-        https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#querying-a-table
+        Parameters
+        ----------
+        table : str
+            the name of the table to query
+        where : str
+            for the 'where' syntax, see:
+            https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#querying-a-table
+
+        Return
+        ------
+        bool
+            False if the table doesn't exist.
         """
         try:
             self.store.remove(table, where)
@@ -132,7 +161,15 @@ class HdfStoreManager():
         """
         Drop the given 'table'.
 
-        Return False if the table doesn't exist.
+        Parameters
+        ----------
+        table : str
+            the name of the table to query
+
+        Return
+        ------
+        bool
+            False if the table doesn't exist.
         """
         try:
             del self.store[table]

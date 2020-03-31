@@ -170,6 +170,7 @@ setup(
             'coverage',
             'coveralls',
             'sphinx',
+            'sphinxcontrib-napoleon',
         ],
     },
 

@@ -37,13 +37,14 @@ class DbClient():
         Parameters
         ----------
         sock_filename : str
-        path to the DbServer socket
+            path to the DbServer socket (default: "/tmp/superdatabase3000.sock")
 
-        Examples
+        Example
         --------
-        # assuming a server is already launched
-        client = DbClient("/tmp/db.sock")
-        df = client.select("/toto")
+        Assuming a server is already launched
+
+        >>> client = DbClient("/tmp/db.sock")
+        >>> df = client.select("/toto")
         """
         self.socket = SocketClient(sock_filename)
 
@@ -68,22 +69,22 @@ class DbClient():
 
     @append_doc_of(HdfStoreManager.select)
     def select(self, table, where=None, columns=None, start=None, stop=None):
-        """This method is an interface to the hdf object on the server side."""
+        """"""
         return self._query("select", Args(table, where, columns, start, stop))
 
     @append_doc_of(HdfStoreManager.insert)
     def insert(self, table, df):
-        """This method is an interface to the hdf object on the server side."""
+        """"""
         return self._query("insert", Args(table, df=df))
 
     @append_doc_of(HdfStoreManager.delete)
     def delete(self, table, where):
-        """This method is an interface to the hdf object on the server side."""
+        """"""
         return self._query("delete", Args(table, where))
 
     @append_doc_of(HdfStoreManager.drop)
     def drop(self, table):
-        """This method is an interface to the hdf object on the server side."""
+        """"""
         return self._query("drop", Args(table))
 
 
@@ -95,18 +96,18 @@ class DbServer():
         Parameters
         ----------
         sock_filename : str
-        path to the DbServer socket
+            path to the DbServer socket (default: "/tmp/superdatabase3000.sock")
 
         hdf_filename : str
-        path to the DbServer socket
+            path to the DbServer hdf store (default: "~/.superdatabase3000.hdf")
 
-        Examples
+        Example
         --------
-        server = DbServer(
-            sock_filename="/tmp/db.sock",
-            hdf_filename="/tmp/db.h5"
-        )
-        server.read_loop()
+        >>> server = DbServer(
+        ...     sock_filename="/tmp/db.sock",
+        ...     hdf_filename="/tmp/db.h5"
+        ... )
+        >>> server.read_loop()
         """
         self.socket = SocketServer(sock_filename)
         self.hdf = HdfStoreManager(hdf_filename)

@@ -203,16 +203,15 @@ class SocketServer(_SocketBase):
         Check for events on the server.
 
         This will handle:
-        - accepting/removing clients
-        - sending messages (the ones added to the queue with send_to)
-        - reading messages
-
-        If a message is successfully read from the socket, the 'on_msg' callback
-        will be called with 2 parameters: on_msg(socket_fd, msg)
-        - socket_fd (int):  the socket fd of the client
-        - msg (object):     the message received from the client
-        (You can use 'socket_fd' to answer to the client with send_to)
+            * accepting/removing clients
+            * sending messages (the ones added to the queue with send_to)
+            * reading messages
         """
+        # If a message is successfully read from the socket, the 'on_msg'
+        # callback will be called with 2 parameters: on_msg(socket_fd, msg)
+        # - socket_fd (int):  the socket fd of the client
+        # - msg (object):     the message received from the client
+        # (You can use 'socket_fd' to answer to the client with send_to)
         inputs = [c.sock for c in self.clients.values()] + [self.sock]
         rlist, wlist, xlist = select.select(
             inputs,

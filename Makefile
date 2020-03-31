@@ -69,7 +69,8 @@ check: lint flake coverage todo
 
 # DOC
 $(DOC_BUILD_DIR):
-	sphinx-apidoc --ext-viewcode -H $(NAME) -A $(AUTHOR) -V $(VERSION) -F -o $(DOC_DIR) $(SRC_DIR)/$(NAME)
+	sphinx-apidoc --extensions sphinxcontrib.napoleon -H $(NAME) -A $(AUTHOR) -V $(VERSION) -F -o $(DOC_DIR) $(SRC_DIR)/$(NAME)
+	grep -q autoclass_content $(DOC_DIR)/conf.py || printf '\nautoclass_content = "both"\nnapoleon_use_rtype = False' >> $(DOC_DIR)/conf.py
 
 html: $(DOC_BUILD_DIR)
 	$(SPHINX) -b html $(DOC_DIR) $(DOC_BUILD_DIR)
