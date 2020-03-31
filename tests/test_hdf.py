@@ -29,6 +29,7 @@ def get_hsm():
         sys.exit(42)
     return hsm
 
+
 @pytest.mark.filterwarnings("ignore:numpy.ufunc size changed")
 def test_hdf():
     hsm = get_hsm()
@@ -43,6 +44,9 @@ def test_hdf():
     assert len(hsm.select(test_table, stop=-1)) == 10000 - 1
     hsm.delete(test_table, where="index >= 3")
     assert len(hsm.select(test_table)) == 3
+
+    assert hsm.select(test_table, start=10) is None
+    assert hsm.select(test_table, stop=10) is None
 
     df3 = pd.DataFrame(
         np.random.random((10000, 12)),
