@@ -119,8 +119,9 @@ class DbServer():
         """Poll events in an infinite loop."""
         while not self.sig.EXIT:
             self.socket.poll_events(self._on_msg)
+        exit_code = self.sig.EXIT
         self.__del__()
-        sys.exit(self.sig.EXIT)
+        sys.exit(exit_code)
 
     def _on_msg(self, client_sock_fd, msg):
         """Callback to send hdf query result to the client."""
@@ -132,6 +133,10 @@ class DbServer():
 
     def __del__(self):
         """Close what needs to be."""
-        del self.hdf
-        del self.socket
-        self.sig.restore()
+        if getattr(self, "hdf", None) is not None:
+            del self.hdf
+        if getattr(self, "socket", None) is not None:
+            del self.socket
+        if getattr(self, "sig", None) is not None:
+            self.sig.restore()
+            del self.sig

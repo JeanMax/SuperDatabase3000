@@ -18,7 +18,7 @@ def _send_to(sock, msg):
     """
     Send 'msg' to given 'sock'.
 
-    'msg' can be any python object, it well be pickled first, then sent
+    'msg' can be any python object, it will be pickled first, then sent
     as a packet to the socket.
     """
     payload = pickle.dumps(msg)
