@@ -170,7 +170,7 @@ setup(
             'flake8-bugbear',
             'coverage',
             'coveralls',
-            'sphinx',
+            'sphinx>=2.1',
             'sphinxcontrib-napoleon',
         ],
     },
